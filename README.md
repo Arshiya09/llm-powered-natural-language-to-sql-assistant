@@ -13,7 +13,7 @@ Equipped with **multi-layered AST security guardrails**, **strict SELECT-only en
 
 ---
 
-## Resume Alignment & Highlights
+## Highlights
 
 - **FastAPI REST API**: Endpoints for natural language queries, schema inspection, and benchmark evaluation with interactive Swagger UI (`/docs`).
 - **Schema-Aware Prompt Architecture**: Dynamic PostgreSQL catalog introspection (tables, columns, types, foreign keys, categorical sample values) combined with few-shot domain exemplars.
