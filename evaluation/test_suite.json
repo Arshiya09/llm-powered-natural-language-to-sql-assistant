@@ -1,0 +1,177 @@
+[
+  {
+    "id": 1,
+    "category": "Basic Aggregation",
+    "question": "What is the total energy consumed across all households?",
+    "gold_sql": "SELECT ROUND(SUM(energy_kwh), 2) AS total_kwh FROM analytics_mart.smart_meter_readings;",
+    "description": "Calculates overall total energy consumption."
+  },
+  {
+    "id": 2,
+    "category": "Basic Aggregation",
+    "question": "How many total registered households are in the database?",
+    "gold_sql": "SELECT COUNT(*) AS total_households FROM analytics_mart.households;",
+    "description": "Counts total rows in households table."
+  },
+  {
+    "id": 3,
+    "category": "Basic Aggregation",
+    "question": "What is the average half-hourly energy consumption in kWh?",
+    "gold_sql": "SELECT ROUND(AVG(energy_kwh), 4) AS avg_kwh FROM analytics_mart.smart_meter_readings;",
+    "description": "Calculates mean half-hourly reading value."
+  },
+  {
+    "id": 4,
+    "category": "Grouping & Aggregation",
+    "question": "What was the total energy consumed by each Acorn category?",
+    "gold_sql": "SELECT h.acorn_category, ROUND(SUM(r.energy_kwh), 2) AS total_energy_kwh FROM analytics_mart.smart_meter_readings r JOIN analytics_mart.households h ON r.household_id = h.household_id GROUP BY h.acorn_category ORDER BY total_energy_kwh DESC;",
+    "description": "Aggregates consumption grouped by socioeconomic Acorn category."
+  },
+  {
+    "id": 5,
+    "category": "Grouping & Aggregation",
+    "question": "How many households belong to each profile type?",
+    "gold_sql": "SELECT profile_type, COUNT(*) AS household_count FROM analytics_mart.households GROUP BY profile_type ORDER BY household_count DESC;",
+    "description": "Counts households partitioned by profile type."
+  },
+  {
+    "id": 6,
+    "category": "Top-N Ranking",
+    "question": "Which top 5 households had the highest energy consumption during peak hours?",
+    "gold_sql": "SELECT household_id, ROUND(SUM(energy_kwh), 2) AS peak_energy_kwh FROM analytics_mart.smart_meter_readings WHERE is_peak_hour = TRUE GROUP BY household_id ORDER BY peak_energy_kwh DESC LIMIT 5;",
+    "description": "Finds highest peak-hour consumers using is_peak_hour flag."
+  },
+  {
+    "id": 7,
+    "category": "Top-N Ranking",
+    "question": "Find the top 10 individual half-hourly consumption spikes recorded.",
+    "gold_sql": "SELECT household_id, reading_datetime, energy_kwh FROM analytics_mart.smart_meter_readings ORDER BY energy_kwh DESC LIMIT 10;",
+    "description": "Selects highest single interval readings."
+  },
+  {
+    "id": 8,
+    "category": "Time-Series & Temporal",
+    "question": "What is the average hourly consumption on weekdays compared to weekends?",
+    "gold_sql": "SELECT CASE WHEN is_weekend THEN 'Weekend' ELSE 'Weekday' END AS day_type, ROUND(AVG(energy_kwh), 4) AS avg_half_hourly_kwh FROM analytics_mart.smart_meter_readings GROUP BY is_weekend;",
+    "description": "Compares weekday and weekend average energy consumption."
+  },
+  {
+    "id": 9,
+    "category": "Time-Series & Temporal",
+    "question": "What is the daily total energy consumption for each day in November 2023?",
+    "gold_sql": "SELECT reading_date, ROUND(SUM(energy_kwh), 2) AS total_daily_kwh FROM analytics_mart.smart_meter_readings GROUP BY reading_date ORDER BY reading_date ASC;",
+    "description": "Daily rollup of energy consumption."
+  },
+  {
+    "id": 10,
+    "category": "Time-Series & Temporal",
+    "question": "Show the average energy consumption for each hour of the day from 0 to 23.",
+    "gold_sql": "SELECT reading_hour, ROUND(AVG(energy_kwh), 4) AS avg_kwh FROM analytics_mart.smart_meter_readings GROUP BY reading_hour ORDER BY reading_hour ASC;",
+    "description": "Profiles 24-hour diurnal demand curve."
+  },
+  {
+    "id": 11,
+    "category": "Multi-Table Joins",
+    "question": "What is the total energy consumption for each tariff plan?",
+    "gold_sql": "SELECT t.tariff_name, ROUND(SUM(r.energy_kwh), 2) AS total_kwh FROM analytics_mart.tariffs t JOIN analytics_mart.smart_meter_readings r ON t.tariff_code = r.tariff_code GROUP BY t.tariff_name ORDER BY total_kwh DESC;",
+    "description": "Joins readings with tariffs table to aggregate usage per tariff plan."
+  },
+  {
+    "id": 12,
+    "category": "Multi-Table Joins",
+    "question": "List all households registered in 2022 that have EV-Owner profile.",
+    "gold_sql": "SELECT household_id, acorn_group, acorn_category, registered_date FROM analytics_mart.households WHERE profile_type = 'EV-Owner' AND registered_date >= '2022-01-01' AND registered_date <= '2022-12-31' ORDER BY registered_date ASC;",
+    "description": "Filters households on profile and registration date range."
+  },
+  {
+    "id": 13,
+    "category": "Multi-Table Joins",
+    "question": "Find the total energy consumed by Affluent households during weekend peak hours.",
+    "gold_sql": "SELECT ROUND(SUM(r.energy_kwh), 2) AS affluent_weekend_peak_kwh FROM analytics_mart.smart_meter_readings r JOIN analytics_mart.households h ON r.household_id = h.household_id WHERE h.acorn_category = 'Affluent' AND r.is_weekend = TRUE AND r.is_peak_hour = TRUE;",
+    "description": "Multi-condition filter with join on category, weekend, and peak hour."
+  },
+  {
+    "id": 14,
+    "category": "Tariff Analytics",
+    "question": "How many active tariffs are configured and what is their rate type?",
+    "gold_sql": "SELECT tariff_code, tariff_name, rate_type, effective_date FROM analytics_mart.tariffs ORDER BY tariff_code ASC;",
+    "description": "Inspects tariff dimension records."
+  },
+  {
+    "id": 15,
+    "category": "Tariff Analytics",
+    "question": "Which tariff plan has the highest peak rate per kWh?",
+    "gold_sql": "SELECT tariff_code, tariff_name, peak_rate_per_kwh FROM analytics_mart.tariffs WHERE peak_rate_per_kwh IS NOT NULL ORDER BY peak_rate_per_kwh DESC LIMIT 1;",
+    "description": "Finds most expensive peak pricing plan."
+  },
+  {
+    "id": 16,
+    "category": "Demographic Analytics",
+    "question": "How many households belong to Acorn group Acorn-A?",
+    "gold_sql": "SELECT COUNT(*) AS acorn_a_households FROM analytics_mart.households WHERE acorn_group = 'Acorn-A';",
+    "description": "Filters for specific demographic Acorn group."
+  },
+  {
+    "id": 17,
+    "category": "Demographic Analytics",
+    "question": "What is the distribution of households across Acorn categories?",
+    "gold_sql": "SELECT acorn_category, COUNT(*) AS household_count, ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (), 2) AS percentage_share FROM analytics_mart.households GROUP BY acorn_category ORDER BY household_count DESC;",
+    "description": "Calculates demographic percentage share."
+  },
+  {
+    "id": 18,
+    "category": "Peak Analytics",
+    "question": "What percentage of total energy consumption occurred during peak hours?",
+    "gold_sql": "SELECT ROUND(SUM(CASE WHEN is_peak_hour THEN energy_kwh ELSE 0 END) * 100.0 / NULLIF(SUM(energy_kwh), 0), 2) AS peak_energy_percentage FROM analytics_mart.smart_meter_readings;",
+    "description": "Calculates peak-to-total consumption ratio."
+  },
+  {
+    "id": 19,
+    "category": "Household Profiling",
+    "question": "Find the average daily consumption for household MAC000001.",
+    "gold_sql": "SELECT reading_date, ROUND(SUM(energy_kwh), 2) AS daily_kwh FROM analytics_mart.smart_meter_readings WHERE household_id = 'MAC000001' GROUP BY reading_date ORDER BY reading_date ASC;",
+    "description": "Profiles single meter across days."
+  },
+  {
+    "id": 20,
+    "category": "Time-Series & Temporal",
+    "question": "What was the highest half-hourly energy demand recorded on 2023-11-05?",
+    "gold_sql": "SELECT MAX(energy_kwh) AS max_reading_kwh FROM analytics_mart.smart_meter_readings WHERE reading_date = '2023-11-05';",
+    "description": "Computes max single reading on a specific day."
+  },
+  {
+    "id": 21,
+    "category": "Grouping & Aggregation",
+    "question": "Which Acorn group consumed the least total energy?",
+    "gold_sql": "SELECT h.acorn_group, ROUND(SUM(r.energy_kwh), 2) AS total_kwh FROM analytics_mart.smart_meter_readings r JOIN analytics_mart.households h ON r.household_id = h.household_id GROUP BY h.acorn_group ORDER BY total_kwh ASC LIMIT 1;",
+    "description": "Finds lowest consuming demographic group."
+  },
+  {
+    "id": 22,
+    "category": "Tariff Analytics",
+    "question": "Count the number of readings recorded under each tariff code.",
+    "gold_sql": "SELECT tariff_code, COUNT(*) AS reading_count FROM analytics_mart.smart_meter_readings GROUP BY tariff_code ORDER BY reading_count DESC;",
+    "description": "Measures reading counts by tariff code."
+  },
+  {
+    "id": 23,
+    "category": "Top-N Ranking",
+    "question": "List the top 3 registered households with the highest registration year.",
+    "gold_sql": "SELECT household_id, registered_date, profile_type FROM analytics_mart.households ORDER BY registered_date DESC LIMIT 3;",
+    "description": "Orders households by newest registration."
+  },
+  {
+    "id": 24,
+    "category": "Time-Series & Temporal",
+    "question": "What is the total consumption recorded on weekends only?",
+    "gold_sql": "SELECT ROUND(SUM(energy_kwh), 2) AS weekend_total_kwh FROM analytics_mart.smart_meter_readings WHERE is_weekend = TRUE;",
+    "description": "Aggregates consumption filtered by is_weekend."
+  },
+  {
+    "id": 25,
+    "category": "Complex Analytics",
+    "question": "Compare total energy consumption and average hourly consumption between Standard and EV-Owner households.",
+    "gold_sql": "SELECT h.profile_type, ROUND(SUM(r.energy_kwh), 2) AS total_kwh, ROUND(AVG(r.energy_kwh), 4) AS avg_reading_kwh FROM analytics_mart.smart_meter_readings r JOIN analytics_mart.households h ON r.household_id = h.household_id WHERE h.profile_type IN ('Standard', 'EV-Owner') GROUP BY h.profile_type;",
+    "description": "Compares energy metrics between distinct consumer lifestyle profiles."
+  }
+]

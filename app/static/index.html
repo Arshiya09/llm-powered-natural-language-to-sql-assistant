@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Meter Energy | Natural Language to SQL Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo-area">
+        <span class="badge">Portfolio Project</span>
+        <h1>⚡ Smart Meter NL-to-SQL Assistant</h1>
+        <p class="subtitle">Schema-aware AI agent translating business questions into validated, read-only PostgreSQL queries over smart meter energy data.</p>
+      </div>
+      <div class="security-badges">
+        <span class="sec-badge">🛡️ AST SELECT-Only Guard</span>
+        <span class="sec-badge">🔒 Read-Only DB Pool</span>
+        <span class="sec-badge">⏱️ 5000ms Timeout</span>
+      </div>
+    </header>
+
+    <main class="main-card">
+      <div class="search-section">
+        <label for="queryInput" class="input-label">Ask a question about energy consumption:</label>
+        <div class="input-group">
+          <input type="text" id="queryInput" placeholder="e.g., What was the total energy consumed by each Acorn category?" autofocus />
+          <button id="submitBtn" onclick="runQuery()">Generate & Run SQL</button>
+        </div>
+
+        <div class="sample-queries">
+          <span class="samples-label">Suggested Questions:</span>
+          <button class="pill" onclick="setQuery(this.innerText)">Total energy consumed by each Acorn category</button>
+          <button class="pill" onclick="setQuery(this.innerText)">Top 5 households with highest peak-hour consumption</button>
+          <button class="pill" onclick="setQuery(this.innerText)">Average consumption on weekdays vs weekends</button>
+          <button class="pill" onclick="setQuery(this.innerText)">Consumption breakdown by tariff rate plan</button>
+          <button class="pill" onclick="setQuery(this.innerText)">Hourly consumption profile across 24 hours</button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading" class="loading-state hidden">
+        <div class="spinner"></div>
+        <p>Analyzing schema, synthesizing SQL with LLM, and validating AST guardrails...</p>
+      </div>
+
+      <!-- Error State -->
+      <div id="errorCard" class="error-card hidden">
+        <h3>⚠️ Security or Execution Error</h3>
+        <p id="errorText"></p>
+      </div>
+
+      <!-- Results Section -->
+      <div id="resultsArea" class="results-section hidden">
+        <div class="explanation-box">
+          <h3>💡 Query Strategy</h3>
+          <p id="explanationText"></p>
+        </div>
+
+        <div class="sql-box">
+          <div class="sql-header">
+            <span>Validated PostgreSQL Query</span>
+            <span id="execStats" class="exec-stats"></span>
+          </div>
+          <pre><code id="sqlCode"></code></pre>
+        </div>
+
+        <div class="table-section">
+          <div class="table-header">
+            <h3>Query Results (<span id="rowCount">0</span> rows)</h3>
+          </div>
+          <div class="table-container">
+            <table id="dataTable">
+              <thead id="tableHead"></thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>Built with <strong>Python, FastAPI, PostgreSQL, Google Gemini API, and SQLGlot</strong> &bull; <a href="/docs" target="_blank">Interactive Swagger Docs</a></p>
+    </footer>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
